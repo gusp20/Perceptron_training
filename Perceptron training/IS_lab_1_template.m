@@ -125,18 +125,6 @@ while etotal ~= 0 % Continue training until the total error is 0
       
     end  
 
-   % for c = 1:5
-    %    v = P1(1, c) * w1 + P1(2, c) * w2 + b;
-    %    if v > 0
-    %     y = 1;
-     %    else
-    %     y = -1;
-    %     end
-   %  e(c) = T(c) - y;
-
-   % fprintf('error in second loop %d \n', e(c));
-
-   % end
 
     etotal = abs(e(1)) + abs(e(2)) + abs(e(3)) + abs(e(4)) + abs(e(5));
 
