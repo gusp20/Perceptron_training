@@ -66,11 +66,14 @@ metric_P4=apvalumas_roundness(P4); %roundness
 %building matrix 2x5
 x1=[hsv_value_A1 hsv_value_A2 hsv_value_A3 hsv_value_P1 hsv_value_P2];
 x2=[metric_A1 metric_A2 metric_A3 metric_P1 metric_P2];
+x3=[hsv_value_A4 hsv_value_A5 hsv_value_A6 hsv_value_P3 hsv_value_P4];
+x4=[metric_A4 metric_A5 metric_A6 metric_P3 metric_P4];
 % estimated features are stored in matrix P:
 P=[x1;x2];
+P1=[x3;x4];
 
 %Desired output vector
-T=[1;-1;-1;1;-1];
+T=[1;1;1;-1;-1];
 
 %% train single perceptron with two inputs and one output
 
@@ -78,53 +81,68 @@ T=[1;-1;-1;1;-1];
 w1 = randn(1);
 w2 = randn(1);
 b = randn(1);
-etotal = zeros(1, 5);
+e = zeros(1, 5);
+etotal = 0;
 
 % calculate wieghted sum with randomly generated parameters
 % calculate current output of the perceptron 
 v = 0;
 e1 = 0;
 for c = 1:5
-        v = P(1, c) * w1 + P(2, c) * w2;
+        v = P(1, c) * w1 + P(2, c) * w2 +b;
 
 if v > 0
 	y = 1;
 else
 	y = -1;
 end
-etotal(c) = T(c) - y;
+e(c) = T(c) - y;
 end
 
-disp(etotal)
+%disp(etotal)
 
 % calculate the total error for these 5 inputs 
-e = abs(etotal(1)) + abs(etotal(2)) + abs(etotal(3)) + abs(etotal(4)) + abs(etotal(5));
+etotal = abs(e(1)) + abs(e(2)) + abs(e(3)) + abs(e(4)) + abs(e(5));
 
 disp(e)
 
 % training algorithm
-c = 1; % Initialize the data point counter
+%c = 1; % Initialize the data point counter
 eta = 0.5; % Learning rate
 
-while e ~= 0 % Continue training until the total error is 0
-    v = P(1, c) * w1 + P(2, c) * w2 + b;
-    if v > 0
-        y = 1;
-    else
-        y = -1;
-    end
-    e(c) = T(c) - y; % Update error for the current data point
+while etotal ~= 0 % Continue training until the total error is 0
+    for c = 1:5
+       v = P(1, c) * w1 + P(2, c) * w2 + b;
+       if v > 0
+              y = 1;
+         else
+              y = -1;
+       end  
+        e(c) = T(c) - y; % Update error for the current data point
+        w1 = w1 + eta * e(c) * P(1, c);
+        w2 = w2 + eta * e(c) * P(2, c);
+        b = b + eta * e(c);
+      
+    end  
 
-    % Update weights and bias for the current data point
-    w1 = w1 + eta * e(c) * P(1, c);
-    w2 = w2 + eta * e(c) * P(2, c);
-    b = b + eta * e(c);
+   % for c = 1:5
+    %    v = P1(1, c) * w1 + P1(2, c) * w2 + b;
+    %    if v > 0
+    %     y = 1;
+     %    else
+    %     y = -1;
+    %     end
+   %  e(c) = T(c) - y;
 
-    c = c + 1; % Move to the next data point
-    if c > 5
-        c = 1; % Reset the counter if you've gone through all data points
-    end
+   % fprintf('error in second loop %d \n', e(c));
+
+   % end
+
+    etotal = abs(e(1)) + abs(e(2)) + abs(e(3)) + abs(e(4)) + abs(e(5));
+
 end
+
+etotal
 
 % Display learned parameters
 disp('Learned Parameters:');
@@ -132,19 +150,17 @@ disp(['w1: ', num2str(w1)]);
 disp(['w2: ', num2str(w2)]);
 disp(['b: ', num2str(b)]);
 
-% Test and evaluate the perceptron on training data
-test_errors = zeros(1, 5);
-
 for c = 1:5
-    v = P(1, c) * w1 + P(2, c) * w2 + b;
-    if v > 0
-        y = 1;
-    else
-        y = -1;
-    end
-    test_errors(c) = T(c) - y;
+      v = P1(1, c) * w1 + P1(2, c) * w2 + b;
+      if v > 0
+       y = 1;
+       else
+       y = -1;
+       end
+   e(c) = T(c) - y;
 end
 
-total_test_error = sum(abs(test_errors));
+etotal = abs(e(1)) + abs(e(2)) + abs(e(3)) + abs(e(4)) + abs(e(5));
 
-disp(['Total Test Error: ', num2str(total_test_error)]);
+etotal
+
